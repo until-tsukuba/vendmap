@@ -6,6 +6,7 @@
 	import { writable } from 'svelte/store';
 	import { base } from '$app/paths';
 	import { darkmodeControl } from './darkmodeControl';
+	import { VENDING, SOURCE_ID, LAYER } from './const';
 
 	interface Props {
 		here: ml.LngLatLike;
@@ -18,23 +19,6 @@
 	let mapElem = $state<HTMLDivElement>();
 	const vending = writable<string>('');
 	const payment = writable<string>('');
-	const VENDING = {
-		DRINKS: {
-			value: 'drinks',
-			title: '飲み物',
-			icon: { id: 'icon-bottle', file: 'icon-bottle.webp', color: 'blue' }
-		},
-		BREAD: {
-			value: 'bread',
-			title: 'パン',
-			icon: { id: 'icon-bread', file: 'icon-baguette.webp', color: 'orange' }
-		},
-		ICE_CREAM: {
-			value: 'ice_cream',
-			title: 'アイス',
-			icon: { id: 'icon-icecream', file: 'icon-icecream.webp', color: 'red' }
-		}
-	} as const;
 
 	$effect(() => {
 		if (typeof mapElem === 'undefined') return;
@@ -44,12 +28,6 @@
 			center: here,
 			zoom: 13
 		});
-		const SOURCE_ID = 'vendingmachine';
-		const LAYER = {
-			CIRCLE: 'vendingmachine-circle',
-			ICON: 'vendingmachine-icon',
-			SYMBOL: 'vendingmachine-symbol'
-		};
 		map.on('load', () => {
 			map.loadImage(`${base}/${VENDING.DRINKS.icon.file}`).then((img) => {
 				map.addImage(VENDING.DRINKS.icon.id, img.data, { sdf: true });
