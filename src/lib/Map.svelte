@@ -64,10 +64,6 @@
 				source: SOURCE_ID,
 				type: 'circle',
 				paint: {
-					//'circle-color': 'blue',
-					//'circle-opacity': 0.8,
-					//'circle-stroke-color': 'white',
-					//'circle-stroke-width': 1
 					'circle-color': 'white',
 					'circle-radius': 16
 				}
@@ -130,14 +126,6 @@
 				.addTo(map!);
 		});
 		setFilter(map, filter);
-		console.log(filter);
-
-		/*
-        const bottleIcon = icon({
-            iconUrl: BottleImage,
-            iconSize: [36, 36]
-        });
-        */
 	});
 	onDestroy(() => {
 		if (typeof map === 'undefined') return;
