@@ -12,7 +12,7 @@
 				class="text-sky-500 hover:underline"
 				href="https://openstreetmap.org/">OpenStreetMap</a
 			>から取得しています。
-			OpenStreetMapにユーザ登録をして、自動販売機のデータを追加することもできます。
+			OpenStreetMap（OSM）にユーザ登録をして、自動販売機のデータを追加することもできます。
 		</p>
 
 		<section class="p-4">
