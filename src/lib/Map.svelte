@@ -1,27 +1,27 @@
 <script lang="ts">
-	import ml from 'maplibre-gl';
+	import maplibregl from 'maplibre-gl';
 	import { isDarkmode } from './store';
 	import { osm, dark } from '$lib/style';
 	import 'maplibre-gl/dist/maplibre-gl.css';
 	import { VendingMachine } from './vendingMachine';
 	import { base } from '$app/paths';
-	import { VENDING, SOURCE_ID, LAYER } from './const';
+	import { VENDING, SOURCE_ID, LAYER } from '$lib/const';
 	import SearchMenu from './SearchMenu.svelte';
 	import { darkmodeControl } from './darkmodeControl';
 	import { onDestroy, onMount } from 'svelte';
 
 	interface Props {
-		here: ml.LngLatLike;
+		here: maplibregl.LngLatLike;
 		pointData: GeoJSON.FeatureCollection<GeoJSON.Point, Record<string, string>>;
 	}
 
 	let { here, pointData }: Props = $props();
 
-	let map = $state<ml.Map | undefined>();
-	let mapElem = $state<HTMLDivElement>();
-	let filter = $state<ml.FilterSpecification | null>(null);
+	let map = $state<maplibregl.Map | undefined>();
+	let mapElem = $state<HTMLDivElement | undefined>();
+	let filter = $state<maplibregl.FilterSpecification | null>(null);
 
-	const setFilter = (map: ml.Map, expr: ml.FilterSpecification | null) => {
+	const setFilter = (map: maplibregl.Map, expr: maplibregl.FilterSpecification | null) => {
 		map.setFilter(LAYER.CIRCLE, expr);
 		map.setFilter(LAYER.ICON, expr);
 		map.setFilter(LAYER.SYMBOL, expr);
@@ -29,7 +29,7 @@
 
 	onMount(() => {
 		if (typeof mapElem === 'undefined') return;
-		map = new ml.Map({
+		map = new maplibregl.Map({
 			container: mapElem,
 			style: $isDarkmode ? dark : osm,
 			center: here,
@@ -46,14 +46,14 @@
 				map?.addImage(VENDING.ICE_CREAM.icon.id, img.data, { sdf: true });
 			});
 			map?.addControl(
-				new ml.GeolocateControl({
+				new maplibregl.GeolocateControl({
 					positionOptions: {
 						enableHighAccuracy: true
 					},
 					trackUserLocation: true
 				})
 			);
-			map?.addControl(new ml.NavigationControl());
+			map?.addControl(new maplibregl.NavigationControl());
 			map?.addControl(new darkmodeControl());
 			map?.addSource(SOURCE_ID, {
 				type: 'geojson',
@@ -124,7 +124,7 @@
 			if (typeof e.features === 'undefined') return;
 			const feature = e.features[0];
 			const vm = new VendingMachine(feature);
-			new ml.Popup()
+			new maplibregl.Popup()
 				.setLngLat(vm.getPosition())
 				.setHTML(vm.generatePopupText())
 				.addTo(map!);
