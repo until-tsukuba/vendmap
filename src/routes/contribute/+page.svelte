@@ -49,7 +49,7 @@
 						href="https://wiki.openstreetmap.org/wiki/JA:Indoor_Mapping"
 						>JA:屋内マッピング - OpenStreetMap Wiki</a
 					>:
-					データが室内にあるものであることを示したいときに役立つ記事です。当サイトでは「indoor=yes」「level=&lt;n&gt;」がデータにあると「n階にあるもの」と表示します
+					データが室内にあるものであることを示したいときに役立つ記事です。当サイトでは「indoor=yes」「level=&lt;n&gt;」がデータにあると、詳細表示に「n階」と表示します
 				</li>
 				<li>
 					<a
