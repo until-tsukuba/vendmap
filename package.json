@@ -8,10 +8,8 @@
 		"preview": "vite preview",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-		"format": "prettier --check .",
-		"format:fix": "prettier --write .",
-		"lint": "eslint .",
-		"lint:fix": "eslint --fix ."
+		"format": "prettier --write . && eslint --fix .",
+		"lint": "prettier --check . && eslint ."
 	},
 	"devDependencies": {
 		"@eslint/js": "^9.15.0",
