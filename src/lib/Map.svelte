@@ -5,10 +5,11 @@
 	import 'maplibre-gl/dist/maplibre-gl.css';
 	import { VendingMachine } from './vendingMachine';
 	import { base } from '$app/paths';
-	import { VENDING, SOURCE_ID, LAYER } from '$lib/const';
+	import { VENDING, SOURCE_ID, LAYER, DARKMODE } from '$lib/const';
 	import SearchMenu from './SearchMenu.svelte';
 	import { darkmodeControl } from './darkmodeControl';
 	import { onDestroy, onMount } from 'svelte';
+	import { browser } from '$app/environment';
 
 	interface Props {
 		here: maplibregl.LngLatLike;
@@ -27,8 +28,20 @@
 		map.setFilter(LAYER.SYMBOL, expr);
 	};
 
+	const loadDarkmodeState = (): boolean => {
+		const rawDarkmode = localStorage.getItem(DARKMODE);
+		if (!rawDarkmode) {
+			return false;
+		}
+		const darkmode = JSON.parse(rawDarkmode) as boolean;
+		return darkmode;
+	};
+
 	onMount(() => {
 		if (typeof mapElem === 'undefined') return;
+		if (browser) {
+			isDarkmode.set(loadDarkmodeState());
+		}
 		map = new maplibregl.Map({
 			container: mapElem,
 			style: $isDarkmode ? dark : osm,
@@ -136,7 +149,10 @@
 		map.remove();
 	})
 	isDarkmode.subscribe((v) => {
-		map?.setStyle(v ? dark : osm);
+		if (browser && typeof map !== 'undefined') {
+			localStorage.setItem(DARKMODE, JSON.stringify(v));
+			map.setStyle(v ? dark : osm)
+		}
 	});
 </script>
 

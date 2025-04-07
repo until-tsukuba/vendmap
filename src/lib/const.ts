@@ -22,3 +22,5 @@ export const VENDING = {
 		icon: { id: 'icon-icecream', file: 'icon-icecream.webp', color: 'red' }
 	}
 } as const;
+
+export const DARKMODE = 'vendmap.tsukuba.dev__darkmode';
