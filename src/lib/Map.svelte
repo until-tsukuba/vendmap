@@ -16,7 +16,7 @@
 		pointData: GeoJSON.FeatureCollection<GeoJSON.Point, Record<string, string>>;
 	}
 
-	let { here, pointData }: Props = $props();
+	const { here, pointData }: Props = $props();
 
 	let map = $state<maplibregl.Map | undefined>();
 	let mapElem = $state<HTMLDivElement | undefined>();
@@ -100,6 +100,14 @@
 		});
 	};
 
+	$effect(() => {
+		if (typeof map !== 'undefined' && filter === null) {
+			setFilter(map, filter);
+		}
+	});
+
+	$inspect(filter);
+
 	onMount(() => {
 		if (typeof mapElem === 'undefined') return;
 		if (browser) {
@@ -113,16 +121,16 @@
 		});
 		map.on('load', () => {
 			if (typeof map === 'undefined') return;
-			map?.loadImage(`${base}/${VENDING.DRINKS.icon.file}`).then((img) => {
+			map.loadImage(`${base}/${VENDING.DRINKS.icon.file}`).then((img) => {
 				map?.addImage(VENDING.DRINKS.icon.id, img.data, { sdf: true });
 			});
-			map?.loadImage(`${base}/${VENDING.BREAD.icon.file}`).then((img) => {
+			map.loadImage(`${base}/${VENDING.BREAD.icon.file}`).then((img) => {
 				map?.addImage(VENDING.BREAD.icon.id, img.data, { sdf: true });
 			});
-			map?.loadImage(`${base}/${VENDING.ICE_CREAM.icon.file}`).then((img) => {
+			map.loadImage(`${base}/${VENDING.ICE_CREAM.icon.file}`).then((img) => {
 				map?.addImage(VENDING.ICE_CREAM.icon.id, img.data, { sdf: true });
 			});
-			map?.addControl(
+			map.addControl(
 				new maplibregl.GeolocateControl({
 					positionOptions: {
 						enableHighAccuracy: true
@@ -130,8 +138,8 @@
 					trackUserLocation: true
 				})
 			);
-			map?.addControl(new maplibregl.NavigationControl());
-			map?.addControl(new darkmodeControl());
+			map.addControl(new maplibregl.NavigationControl());
+			map.addControl(new darkmodeControl());
 			setLayer(map);
 			setFilter(map, filter);
 		});
@@ -147,7 +155,7 @@
 	});
 	onDestroy(() => {
 		if (typeof map === 'undefined') return;
-		for (let l of Object.values(LAYER)) {
+		for (const l of Object.values(LAYER)) {
 			map.removeLayer(l);
 		}
 		map.removeSource(SOURCE_ID);

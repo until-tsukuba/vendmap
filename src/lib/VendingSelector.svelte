@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { VENDING } from './const';
 
-	type Props = {
+	interface Props {
 		vendingFilter: maplibregl.FilterSpecification | undefined;
-	};
+	}
 
 	let vending = $state('');
 	let { vendingFilter = $bindable() }: Props = $props();

@@ -1,9 +1,9 @@
 <script lang="ts">
 	import VendingSelector from './VendingSelector.svelte';
 
-	type Props = {
+	interface Props {
 		filter: maplibregl.FilterSpecification | null;
-	};
+	}
 	let { filter = $bindable() }: Props = $props();
 	let vendingFilter = $state<maplibregl.FilterSpecification | undefined>();
 
