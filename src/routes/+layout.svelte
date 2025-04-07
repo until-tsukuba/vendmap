@@ -1,11 +1,20 @@
 <script lang="ts">
 	import Header from '$lib/Header.svelte';
 	import '../app.css';
+	import { isDarkmode } from '$lib/store';
 	interface Props {
 		children?: import('svelte').Snippet;
 	}
 
 	const { children }: Props = $props();
+
+	$effect(() => {
+		if ($isDarkmode) {
+			document.body.className = 'dark';
+		} else {
+			document.body.className = '';
+		}
+	})
 </script>
 
 <Header />

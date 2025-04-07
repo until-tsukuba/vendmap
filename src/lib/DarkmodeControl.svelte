@@ -7,11 +7,6 @@
 	class="bg-white rounded size-[29px]"
 	onclick={() => {
 		$isDarkmode = !$isDarkmode;
-		if ($isDarkmode) {
-			document.body.className = 'dark';
-		} else {
-			document.body.className = '';
-		}
 	}}
 >
 	<span class="grid place-items-center p-1 text-red-200">
