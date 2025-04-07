@@ -37,42 +37,12 @@
 		return darkmode;
 	};
 
-	onMount(() => {
-		if (typeof mapElem === 'undefined') return;
-		if (browser) {
-			isDarkmode.set(loadDarkmodeState());
-		}
-		map = new maplibregl.Map({
-			container: mapElem,
-			style: $isDarkmode ? dark : osm,
-			center: here,
-			zoom: 13
-		});
-		map.on('load', () => {
-			map?.loadImage(`${base}/${VENDING.DRINKS.icon.file}`).then((img) => {
-				map?.addImage(VENDING.DRINKS.icon.id, img.data, { sdf: true });
-			});
-			map?.loadImage(`${base}/${VENDING.BREAD.icon.file}`).then((img) => {
-				map?.addImage(VENDING.BREAD.icon.id, img.data, { sdf: true });
-			});
-			map?.loadImage(`${base}/${VENDING.ICE_CREAM.icon.file}`).then((img) => {
-				map?.addImage(VENDING.ICE_CREAM.icon.id, img.data, { sdf: true });
-			});
-			map?.addControl(
-				new maplibregl.GeolocateControl({
-					positionOptions: {
-						enableHighAccuracy: true
-					},
-					trackUserLocation: true
-				})
-			);
-			map?.addControl(new maplibregl.NavigationControl());
-			map?.addControl(new darkmodeControl());
-			map?.addSource(SOURCE_ID, {
+	const setLayer = (map: maplibregl.Map) => {
+			map.addSource(SOURCE_ID, {
 				type: 'geojson',
 				data: pointData
 			});
-			map?.addLayer({
+			map.addLayer({
 				id: LAYER.CIRCLE,
 				source: SOURCE_ID,
 				type: 'circle',
@@ -81,7 +51,7 @@
 					'circle-radius': 16
 				}
 			});
-			map?.addLayer({
+			map.addLayer({
 				id: LAYER.ICON,
 				source: SOURCE_ID,
 				type: 'symbol',
@@ -114,7 +84,7 @@
 					'icon-allow-overlap': true
 				}
 			});
-			map?.addLayer({
+			map.addLayer({
 				id: LAYER.SYMBOL,
 				source: SOURCE_ID,
 				type: 'symbol',
@@ -128,6 +98,41 @@
 					'text-halo-color': 'white'
 				}
 			});
+	};
+
+	onMount(() => {
+		if (typeof mapElem === 'undefined') return;
+		if (browser) {
+			isDarkmode.set(loadDarkmodeState());
+		}
+		map = new maplibregl.Map({
+			container: mapElem,
+			style: $isDarkmode ? dark : osm,
+			center: here,
+			zoom: 13
+		});
+		map.on('load', () => {
+			if (typeof map === 'undefined') return;
+			map?.loadImage(`${base}/${VENDING.DRINKS.icon.file}`).then((img) => {
+				map?.addImage(VENDING.DRINKS.icon.id, img.data, { sdf: true });
+			});
+			map?.loadImage(`${base}/${VENDING.BREAD.icon.file}`).then((img) => {
+				map?.addImage(VENDING.BREAD.icon.id, img.data, { sdf: true });
+			});
+			map?.loadImage(`${base}/${VENDING.ICE_CREAM.icon.file}`).then((img) => {
+				map?.addImage(VENDING.ICE_CREAM.icon.id, img.data, { sdf: true });
+			});
+			map?.addControl(
+				new maplibregl.GeolocateControl({
+					positionOptions: {
+						enableHighAccuracy: true
+					},
+					trackUserLocation: true
+				})
+			);
+			map?.addControl(new maplibregl.NavigationControl());
+			map?.addControl(new darkmodeControl());
+			setLayer(map)
 		});
 		map.on('click', LAYER.CIRCLE, (e) => {
 			if (typeof e.features === 'undefined') return;
@@ -147,11 +152,12 @@
 		}
 		map.removeSource(SOURCE_ID);
 		map.remove();
-	})
+	});
 	isDarkmode.subscribe((v) => {
 		if (browser && typeof map !== 'undefined') {
 			localStorage.setItem(DARKMODE, JSON.stringify(v));
 			map.setStyle(v ? dark : osm)
+			setLayer(map);
 		}
 	});
 </script>
