@@ -14,7 +14,7 @@
 		} else {
 			document.body.className = '';
 		}
-	})
+	});
 </script>
 
 <Header />

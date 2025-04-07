@@ -38,66 +38,66 @@
 	};
 
 	const setLayer = (map: maplibregl.Map) => {
-			map.addSource(SOURCE_ID, {
-				type: 'geojson',
-				data: pointData
-			});
-			map.addLayer({
-				id: LAYER.CIRCLE,
-				source: SOURCE_ID,
-				type: 'circle',
-				paint: {
-					'circle-color': 'white',
-					'circle-radius': 16
-				}
-			});
-			map.addLayer({
-				id: LAYER.ICON,
-				source: SOURCE_ID,
-				type: 'symbol',
-				paint: {
-					'icon-color': [
-						'match',
-						['get', 'vending'],
-						VENDING.DRINKS.value,
-						VENDING.DRINKS.icon.color,
-						VENDING.BREAD.value,
-						VENDING.BREAD.icon.color,
-						VENDING.ICE_CREAM.value,
-						VENDING.ICE_CREAM.icon.color,
-						'blue' // fallback
-					]
-				},
-				layout: {
-					'icon-image': [
-						'match',
-						['get', 'vending'],
-						VENDING.DRINKS.value,
-						VENDING.DRINKS.icon.id,
-						VENDING.BREAD.value,
-						VENDING.BREAD.icon.id,
-						VENDING.ICE_CREAM.value,
-						VENDING.ICE_CREAM.icon.id,
-						VENDING.DRINKS.icon.id // fallback
-					],
-					'icon-size': 0.15,
-					'icon-allow-overlap': true
-				}
-			});
-			map.addLayer({
-				id: LAYER.SYMBOL,
-				source: SOURCE_ID,
-				type: 'symbol',
-				layout: {
-					'text-font': ['Noto Sans Bold'],
-					'text-field': ['format', ['coalesce', ['get', 'brand'], ['get', 'name']]],
-					'text-offset': [0, 1.6]
-				},
-				paint: {
-					'text-halo-width': 2,
-					'text-halo-color': 'white'
-				}
-			});
+		map.addSource(SOURCE_ID, {
+			type: 'geojson',
+			data: pointData
+		});
+		map.addLayer({
+			id: LAYER.CIRCLE,
+			source: SOURCE_ID,
+			type: 'circle',
+			paint: {
+				'circle-color': 'white',
+				'circle-radius': 16
+			}
+		});
+		map.addLayer({
+			id: LAYER.ICON,
+			source: SOURCE_ID,
+			type: 'symbol',
+			paint: {
+				'icon-color': [
+					'match',
+					['get', 'vending'],
+					VENDING.DRINKS.value,
+					VENDING.DRINKS.icon.color,
+					VENDING.BREAD.value,
+					VENDING.BREAD.icon.color,
+					VENDING.ICE_CREAM.value,
+					VENDING.ICE_CREAM.icon.color,
+					'blue' // fallback
+				]
+			},
+			layout: {
+				'icon-image': [
+					'match',
+					['get', 'vending'],
+					VENDING.DRINKS.value,
+					VENDING.DRINKS.icon.id,
+					VENDING.BREAD.value,
+					VENDING.BREAD.icon.id,
+					VENDING.ICE_CREAM.value,
+					VENDING.ICE_CREAM.icon.id,
+					VENDING.DRINKS.icon.id // fallback
+				],
+				'icon-size': 0.15,
+				'icon-allow-overlap': true
+			}
+		});
+		map.addLayer({
+			id: LAYER.SYMBOL,
+			source: SOURCE_ID,
+			type: 'symbol',
+			layout: {
+				'text-font': ['Noto Sans Bold'],
+				'text-field': ['format', ['coalesce', ['get', 'brand'], ['get', 'name']]],
+				'text-offset': [0, 1.6]
+			},
+			paint: {
+				'text-halo-width': 2,
+				'text-halo-color': 'white'
+			}
+		});
 	};
 
 	onMount(() => {
@@ -132,7 +132,7 @@
 			);
 			map?.addControl(new maplibregl.NavigationControl());
 			map?.addControl(new darkmodeControl());
-			setLayer(map)
+			setLayer(map);
 		});
 		map.on('click', LAYER.CIRCLE, (e) => {
 			if (typeof e.features === 'undefined') return;
@@ -156,7 +156,7 @@
 	isDarkmode.subscribe((v) => {
 		if (browser && typeof map !== 'undefined') {
 			localStorage.setItem(DARKMODE, JSON.stringify(v));
-			map.setStyle(v ? dark : osm)
+			map.setStyle(v ? dark : osm);
 			setLayer(map);
 		}
 	});
