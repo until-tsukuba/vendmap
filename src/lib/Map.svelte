@@ -133,6 +133,7 @@
 			map?.addControl(new maplibregl.NavigationControl());
 			map?.addControl(new darkmodeControl());
 			setLayer(map);
+			setFilter(map, filter);
 		});
 		map.on('click', LAYER.CIRCLE, (e) => {
 			if (typeof e.features === 'undefined') return;
@@ -143,7 +144,6 @@
 				.setHTML(vm.generatePopupText())
 				.addTo(map!);
 		});
-		setFilter(map, filter);
 	});
 	onDestroy(() => {
 		if (typeof map === 'undefined') return;
