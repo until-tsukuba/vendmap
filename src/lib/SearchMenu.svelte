@@ -1,5 +1,6 @@
 <script lang="ts">
 	import VendingSelector from './VendingSelector.svelte';
+	import maplibregl from 'maplibre-gl';
 
 	interface Props {
 		filter: maplibregl.FilterSpecification | null;

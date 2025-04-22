@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { VENDING } from './const';
+	import maplibregl from 'maplibre-gl';
 
 	interface Props {
 		vendingFilter: maplibregl.FilterSpecification | undefined;

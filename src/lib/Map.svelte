@@ -10,6 +10,7 @@
 	import { darkmodeControl } from './darkmodeControl';
 	import { onDestroy, onMount } from 'svelte';
 	import { browser } from '$app/environment';
+	import type GeoJSON from '@types/geojson';
 
 	interface Props {
 		here: maplibregl.LngLatLike;
