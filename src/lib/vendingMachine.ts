@@ -1,4 +1,3 @@
-import type { GeoJSONFeature } from './geojson';
 import ml from 'maplibre-gl';
 
 interface VendingMachineAsObject {

@@ -1,5 +1,6 @@
-import { writable, derived } from 'svelte/store';
-import { osm, dark } from '$lib/style';
+import { derived, writable } from 'svelte/store';
+import maplibregl from 'maplibre-gl';
 
 export const isDarkmode = writable(false);
-export const mapStyle = derived(isDarkmode, (mode) => (mode ? dark : osm));
+export const vendingFilter = writable<maplibregl.FilterSpecification | null>(null);
+export const filter = derived(vendingFilter, ($vendingFilter) => $vendingFilter);
