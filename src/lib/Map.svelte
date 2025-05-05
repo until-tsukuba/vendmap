@@ -136,13 +136,11 @@
 			setFilter(map, $filter);
 		});
 		map.on('click', LAYER.CIRCLE, (e) => {
+			if (typeof map === 'undefined') return;
 			if (typeof e.features === 'undefined') return;
 			const feature = e.features[0];
 			const vm = new VendingMachine(feature);
-			new maplibregl.Popup()
-				.setLngLat(vm.getPosition())
-				.setHTML(vm.generatePopupText())
-				.addTo(map!);
+			new maplibregl.Popup().setLngLat(vm.getPosition()).setHTML(vm.generatePopupText()).addTo(map);
 		});
 	});
 	const filterUnsubscriber = filter.subscribe(
