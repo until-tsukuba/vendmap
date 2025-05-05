@@ -3,7 +3,7 @@
 </script>
 
 <header>
-	<nav class="dark:bg-slate-800 relative w-full p-2 z-30" aria-label="main navigation">
+	<nav class="dark:bg-slate-800 bg-sky-50 relative w-full p-2 z-30" aria-label="main navigation">
 		<div class="flex items-center justify-between">
 			<div class="flex-auto">
 				<a class="item-center dark:text-neutral-200" href="/"> 筑波大自販機Map </a>
