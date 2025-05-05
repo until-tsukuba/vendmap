@@ -1,6 +1,6 @@
 <script lang="ts">
 	import maplibregl from 'maplibre-gl';
-	import { isDarkmode } from './store';
+	import { isDarkmode, filter } from './store';
 	import { osm, dark } from '$lib/style';
 	import 'maplibre-gl/dist/maplibre-gl.css';
 	import { VendingMachine } from './vendingMachine';
@@ -21,9 +21,8 @@
 
 	let map = $state<maplibregl.Map | undefined>();
 	let mapElem = $state<HTMLDivElement | undefined>();
-	let filter = $state<maplibregl.FilterSpecification | null>(null);
 
-	const setFilter = (map: maplibregl.Map, expr: maplibregl.FilterSpecification | null) => {
+	const setFilter = (map: maplibregl.Map, expr: maplibregl.FilterSpecification | null = null) => {
 		map.setFilter(LAYER.CIRCLE, expr);
 		map.setFilter(LAYER.ICON, expr);
 		map.setFilter(LAYER.SYMBOL, expr);
@@ -101,14 +100,6 @@
 		});
 	};
 
-	$effect(() => {
-		if (typeof map !== 'undefined' && filter === null) {
-			setFilter(map, filter);
-		}
-	});
-
-	$inspect(filter);
-
 	onMount(() => {
 		if (typeof mapElem === 'undefined') return;
 		if (browser) {
@@ -142,7 +133,7 @@
 			map.addControl(new maplibregl.NavigationControl());
 			map.addControl(new darkmodeControl());
 			setLayer(map);
-			setFilter(map, filter);
+			setFilter(map, $filter);
 		});
 		map.on('click', LAYER.CIRCLE, (e) => {
 			if (typeof e.features === 'undefined') return;
@@ -154,7 +145,27 @@
 				.addTo(map!);
 		});
 	});
+	const filterUnsubscriber = filter.subscribe(
+		(filter) => {
+			if (typeof map === 'undefined') return;
+			setFilter(map, filter);
+		},
+		() => {
+			if (typeof map === 'undefined') return;
+			setFilter(map, null);
+		}
+	);
+	const darkmodeUnsubscriber = isDarkmode.subscribe((v) => {
+		if (browser && typeof map !== 'undefined') {
+			localStorage.setItem(DARKMODE, JSON.stringify(v));
+			map.setStyle(v ? dark : osm);
+			setLayer(map);
+			setFilter(map, $filter);
+		}
+	});
 	onDestroy(() => {
+		filterUnsubscriber();
+		darkmodeUnsubscriber();
 		if (typeof map === 'undefined') return;
 		for (const l of Object.values(LAYER)) {
 			map.removeLayer(l);
@@ -162,20 +173,13 @@
 		map.removeSource(SOURCE_ID);
 		map.remove();
 	});
-	isDarkmode.subscribe((v) => {
-		if (browser && typeof map !== 'undefined') {
-			localStorage.setItem(DARKMODE, JSON.stringify(v));
-			map.setStyle(v ? dark : osm);
-			setLayer(map);
-		}
-	});
 </script>
 
 <div id="map-container">
 	<div id="map" bind:this={mapElem}></div>
 </div>
 
-<SearchMenu bind:filter />
+<SearchMenu />
 
 <style>
 	#map {

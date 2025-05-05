@@ -1,23 +1,15 @@
 <script lang="ts">
 	import { VENDING } from './const';
 	import maplibregl from 'maplibre-gl';
-
-	interface Props {
-		vendingFilter: maplibregl.FilterSpecification | undefined;
-	}
+	import { vendingFilter } from './store';
 
 	let vending = $state('');
-	let { vendingFilter = $bindable() }: Props = $props();
 
 	$effect(() => {
-		if (vending === '') {
-			vendingFilter = [
-				'==',
-				['get', 'amenity'],
-				'vending_machine'
-			] as maplibregl.FilterSpecification;
+		if (vending !== '') {
+			vendingFilter.set(['==', ['get', 'vending'], vending] as maplibregl.FilterSpecification);
 		} else {
-			vendingFilter = ['==', ['get', 'vending'], vending] as maplibregl.FilterSpecification;
+			vendingFilter.set(null);
 		}
 	});
 </script>
