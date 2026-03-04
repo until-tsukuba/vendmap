@@ -10,7 +10,7 @@
 			</div>
 			<div class="md:hidden flex-none">
 				<button
-					class="inline-flex rounded-md dark:text-neutral-200 focus:outline-none"
+					class="inline-flex rounded-md dark:text-neutral-200 focus:outline-hidden"
 					aria-label="menu"
 					aria-expanded={is_navbar_toggled}
 					data-target="navbar-content"
