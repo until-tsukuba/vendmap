@@ -4,7 +4,7 @@
 </script>
 
 <button
-	class="bg-white rounded size-[29px]"
+	class="bg-white rounded-sm size-[29px]"
 	onclick={() => {
 		$isDarkmode = !$isDarkmode;
 	}}
