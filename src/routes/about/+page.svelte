@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { base } from '$app/paths';
+	import { resolve } from '$app/paths';
 	import ogpImage from '$lib/assets/ogp.jpg';
 </script>
 
@@ -44,7 +44,7 @@
 	<title>筑波大学 自販機 Map</title>
 	<meta name="og:title" content="about | 筑波大学 自販機 Map" />
 	<meta name="og:type" content="website" />
-	<meta name="og:url" content="{base}/" />
+	<meta name="og:url" content={resolve('/about')} />
 	<meta name="og:locale" content="ja_JP" />
 	<meta name="og:images" content={ogpImage} />
 	<meta name="og:description" content="筑波大学構内の自動販売機の場所を一覧できるサイト" />

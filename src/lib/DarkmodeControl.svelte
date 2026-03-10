@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { isDarkmode } from './store';
-	$inspect($isDarkmode);
 </script>
 
 <button

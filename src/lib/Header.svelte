@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
+
 	let is_navbar_toggled = $state(false);
 </script>
 
@@ -6,7 +8,7 @@
 	<nav class="dark:bg-slate-800 bg-sky-50 relative w-full p-2 z-30" aria-label="main navigation">
 		<div class="flex items-center justify-between">
 			<div class="flex-auto">
-				<a class="item-center dark:text-neutral-200" href="/"> 筑波大自販機Map </a>
+				<a class="item-center dark:text-neutral-200" href={resolve('/')}> 筑波大自販機Map </a>
 			</div>
 			<div class="md:hidden flex-none">
 				<button
@@ -48,8 +50,8 @@
 				</button>
 			</div>
 			<div class="hidden md:flex">
-				<a href="/about" class="p-2 dark:text-neutral-200">about</a>
-				<a href="/contribute" class="p-2 dark:text-neutral-200">このサイトに貢献する</a>
+				<a href={resolve('/about')} class="p-2 dark:text-neutral-200">about</a>
+				<a href={resolve('/contribute')} class="p-2 dark:text-neutral-200">このサイトに貢献する</a>
 				<a href="https://github.com/eniehack/itf-vendingmachine" class="p-2 dark:text-neutral-200"
 					>GitHub</a
 				>
@@ -57,8 +59,8 @@
 		</div>
 		{#if is_navbar_toggled}
 			<div id="navbar-content" class="md:hidden flex flex-col block">
-				<a href="/about" class="p-2 dark:text-neutral-200">about</a>
-				<a href="/contribute" class="p-2 dark:text-neutral-200">このサイトに貢献する</a>
+				<a href={resolve('/about')} class="p-2 dark:text-neutral-200">about</a>
+				<a href={resolve('/contribute')} class="p-2 dark:text-neutral-200">このサイトに貢献する</a>
 				<a href="https://github.com/eniehack/itf-vendingmachine" class="p-2 dark:text-neutral-200"
 					>GitHub</a
 				>

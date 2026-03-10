@@ -4,7 +4,7 @@
 	import { osm, dark } from '$lib/style';
 	import 'maplibre-gl/dist/maplibre-gl.css';
 	import { VendingMachine } from './vendingMachine';
-	import { base } from '$app/paths';
+	import { asset } from '$app/paths';
 	import { VENDING, SOURCE_ID, LAYER, DARKMODE } from '$lib/const';
 	import SearchMenu from './SearchMenu.svelte';
 	import { darkmodeControl } from './darkmodeControl';
@@ -113,13 +113,13 @@
 		});
 		map.on('load', () => {
 			if (typeof map === 'undefined') return;
-			map.loadImage(`${base}/${VENDING.DRINKS.icon.file}`).then((img) => {
+			map.loadImage(asset(`/${VENDING.DRINKS.icon.file}`)).then((img) => {
 				map?.addImage(VENDING.DRINKS.icon.id, img.data, { sdf: true });
 			});
-			map.loadImage(`${base}/${VENDING.BREAD.icon.file}`).then((img) => {
+			map.loadImage(asset(`/${VENDING.BREAD.icon.file}`)).then((img) => {
 				map?.addImage(VENDING.BREAD.icon.id, img.data, { sdf: true });
 			});
-			map.loadImage(`${base}/${VENDING.ICE_CREAM.icon.file}`).then((img) => {
+			map.loadImage(asset(`/${VENDING.ICE_CREAM.icon.file}`)).then((img) => {
 				map?.addImage(VENDING.ICE_CREAM.icon.id, img.data, { sdf: true });
 			});
 			map.addControl(
