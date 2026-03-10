@@ -18,7 +18,7 @@
 	<label for="vending">欲しいものは？</label>
 	<select name="vending" id="vending-selector" bind:value={vending}>
 		<option value="">指定なし</option>
-		{#each Object.values(VENDING) as v}
+		{#each Object.values(VENDING) as v (v.value)}
 			<option value={v.value}>{v.title}</option>
 		{/each}
 	</select>
