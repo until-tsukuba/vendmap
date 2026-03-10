@@ -4,7 +4,6 @@ import tseslint from 'typescript-eslint';
 import svelte from 'eslint-plugin-svelte';
 import prettierConfig from 'eslint-config-prettier';
 import svelteConfig from './svelte.config.js';
-import * as espree from 'espree';
 
 export default [
 	js.configs.recommended,
@@ -32,18 +31,9 @@ export default [
 				extraFileExtensions: ['.svelte'],
 				projectService: true,
 				parser: {
-					ts: tseslint.parser,
-					js: espree
+					ts: tseslint.parser
 				},
 				svelteConfig
-			}
-		}
-	},
-	{
-		files: ['**/*.js', '**/*.mjs'],
-		languageOptions: {
-			parserOptions: {
-				parser: espree
 			}
 		}
 	},
