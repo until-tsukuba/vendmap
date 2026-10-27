@@ -19,6 +19,8 @@ export const payload = v.object({
 	version: v.number(),
 	generator: v.string(),
 	osm3s: osm3sObject,
+	// Overpass がタイムアウトなどで処理を打ち切ったときに付与されるメッセージ
+	remark: v.optional(v.string()),
 	elements: v.array(osmObject)
 });
 

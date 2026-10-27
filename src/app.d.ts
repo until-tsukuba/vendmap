@@ -4,6 +4,16 @@
 declare namespace App {
 	// interface Locals {}
 	// interface PageData {}
-	// interface Error {}
-	// interface Platform {}
+	interface FetchFailure {
+		source: string;
+		reason: string;
+	}
+	interface Error {
+		message: string;
+		failures?: FetchFailure[];
+	}
+	interface Platform {
+		caches?: CacheStorage & { default: Cache };
+		context?: { waitUntil(promise: Promise<unknown>): void };
+	}
 }
