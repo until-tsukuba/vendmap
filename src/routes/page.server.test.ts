@@ -33,7 +33,9 @@ const liveData = {
 	]
 };
 
-function setup(options: { noCache?: boolean; backgroundWrite?: boolean } = {}) {
+function setup(
+	options: { noCache?: boolean; noPlatform?: boolean; backgroundWrite?: boolean } = {}
+) {
 	const fetch = vi.fn<typeof globalThis.fetch>();
 	const setHeaders = vi.fn<Parameters<typeof load>[0]['setHeaders']>();
 	const cache = {
@@ -45,10 +47,10 @@ function setup(options: { noCache?: boolean; backgroundWrite?: boolean } = {}) {
 	const event = {
 		fetch,
 		setHeaders,
-		platform: options.noCache
+		platform: options.noPlatform
 			? undefined
 			: {
-					caches: { default: cache },
+					caches: options.noCache ? undefined : { default: cache },
 					context: options.backgroundWrite ? { waitUntil } : undefined
 				}
 	} as unknown as Parameters<typeof load>[0];
@@ -66,7 +68,9 @@ beforeEach(() => {
 	vi.stubEnv('DEV', false);
 	vi.spyOn(Date, 'now').mockReturnValue(NOW);
 	// No native 25-second timers or real HTTP requests in this suite.
-	timeoutSpy = vi.spyOn(AbortSignal, 'timeout').mockImplementation(() => new AbortController().signal);
+	timeoutSpy = vi
+		.spyOn(AbortSignal, 'timeout')
+		.mockImplementation(() => new AbortController().signal);
 	vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('Unexpected real HTTP request'));
 	vi.spyOn(console, 'error').mockImplementation(() => undefined);
 	vi.spyOn(console, 'warn').mockImplementation(() => undefined);
@@ -111,7 +115,7 @@ describe('production vending-machine load', () => {
 		});
 		if (!(init?.body instanceof URLSearchParams)) throw new Error('Expected form data');
 		expect(init.body.get('data')).toContain('amenity=vending_machine');
-		expect(init?.signal).toBeInstanceOf(AbortSignal);
+		expect(init.signal).toBeInstanceOf(AbortSignal);
 		expect(timeoutSpy).toHaveBeenCalledWith(25_000);
 		expect(t.cache.put).toHaveBeenCalledTimes(1);
 		const [key, response] = t.cache.put.mock.calls[0];
@@ -123,6 +127,28 @@ describe('production vending-machine load', () => {
 		expect(stored.headers.get('Cache-Control')).toBe('max-age=2592000');
 		expect(stored.headers.get('Content-Type')).toBe('application/json');
 		expect(t.waitUntil).toHaveBeenCalledTimes(backgroundWrite ? 1 : 0);
+		expect(t.setHeaders).toHaveBeenCalledWith({ 'Cache-Control': PAGE_CACHE_CONTROL });
+	});
+
+	it.each([{ noCache: true }, { noPlatform: true }])(
+		'returns live data without Cache API (%j)',
+		async (options) => {
+			const t = setup(options);
+			t.fetch.mockResolvedValue(Response.json(apiPayload));
+			await expect(t.run()).resolves.toEqual(liveData);
+			expect(t.fetch).toHaveBeenCalledTimes(1);
+			expect(t.setHeaders).toHaveBeenCalledWith({ 'Cache-Control': PAGE_CACHE_CONTROL });
+		}
+	);
+
+	it('replaces a stale cache when the first endpoint succeeds', async () => {
+		const t = setup();
+		t.cache.match.mockResolvedValue(
+			Response.json(vm, { headers: { 'X-Fetched-At': String(NOW - SIX_HOURS) } })
+		);
+		t.fetch.mockResolvedValue(Response.json(apiPayload));
+		await expect(t.run()).resolves.toEqual(liveData);
+		expect(t.cache.put).toHaveBeenCalledTimes(1);
 		expect(t.setHeaders).toHaveBeenCalledWith({ 'Cache-Control': PAGE_CACHE_CONTROL });
 	});
 
@@ -138,16 +164,11 @@ describe('production vending-machine load', () => {
 		);
 	});
 
-	it('reproduces HTTP 500 after HTTP 521 and a timeout with an empty cache', async () => {
+	it('returns bundled data after HTTP 521 and a timeout with an empty cache', async () => {
 		const t = setup();
 		t.fetch.mockResolvedValueOnce(new Response(null, { status: 521 }));
 		t.fetch.mockRejectedValueOnce(new DOMException('Timed out', 'TimeoutError'));
-		await expect(t.run()).rejects.toMatchObject({
-			status: 500,
-			body: {
-				message: '自動販売機データの取得に失敗しました'
-			}
-		});
+		await expect(t.run()).resolves.toEqual(vm);
 		expect(console.error).toHaveBeenCalledWith(
 			expect.stringContaining('HTTP 521'),
 			expect.any(Error)
@@ -157,14 +178,22 @@ describe('production vending-machine load', () => {
 			expect.any(Error)
 		);
 		expect(t.cache.put).not.toHaveBeenCalled();
+		expect(t.fetch.mock.calls.map(([url]) => url)).toEqual(ENDPOINTS);
+		expect(t.setHeaders).toHaveBeenCalledWith({ 'Cache-Control': 'public, max-age=300' });
+		expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('bundled'));
 	});
 
-	it('reproduces HTTP 500 when Cache API is unavailable and both APIs fail', async () => {
-		const t = setup({ noCache: true });
-		t.fetch.mockRejectedValue(new TypeError('fetch failed'));
-		await expect(t.run()).rejects.toMatchObject({ status: 500 });
-		expect(t.fetch).toHaveBeenCalledTimes(2);
-	});
+	it.each([{ noCache: true }, { noPlatform: true }])(
+		'returns bundled data without Cache API (%j) when both APIs fail',
+		async (options) => {
+			const t = setup(options);
+			t.fetch.mockRejectedValue(new TypeError('fetch failed'));
+			await expect(t.run()).resolves.toEqual(vm);
+			expect(t.fetch).toHaveBeenCalledTimes(2);
+			expect(t.cache.put).not.toHaveBeenCalled();
+			expect(t.setHeaders).toHaveBeenCalledWith({ 'Cache-Control': 'public, max-age=300' });
+		}
+	);
 
 	it.each([SIX_HOURS, SIX_HOURS + 1])(
 		'returns stale data after API failure (age=%s)',
@@ -192,12 +221,18 @@ describe('production vending-machine load', () => {
 				return response;
 			}
 		]
-	])('tries the second endpoint after %s', async (_label, response) => {
-		const t = setup();
-		t.fetch.mockResolvedValueOnce(response());
-		t.fetch.mockResolvedValueOnce(Response.json(apiPayload));
-		await expect(t.run()).resolves.toEqual(liveData);
-		expect(t.fetch.mock.calls.map(([url]) => url)).toEqual(ENDPOINTS);
+	])('falls back after %s', async (_label, response) => {
+		const recovered = setup();
+		recovered.fetch.mockResolvedValueOnce(response());
+		recovered.fetch.mockResolvedValueOnce(Response.json(apiPayload));
+		await expect(recovered.run()).resolves.toEqual(liveData);
+		expect(recovered.fetch.mock.calls.map(([url]) => url)).toEqual(ENDPOINTS);
+
+		const failed = setup();
+		failed.fetch.mockImplementation(() => Promise.resolve(response()));
+		await expect(failed.run()).resolves.toEqual(vm);
+		expect(failed.fetch.mock.calls.map(([url]) => url)).toEqual(ENDPOINTS);
+		expect(failed.cache.put).not.toHaveBeenCalled();
 	});
 
 	it('continues after a cache read error', async () => {
@@ -208,6 +243,19 @@ describe('production vending-machine load', () => {
 		await expect(t.run()).resolves.toEqual(liveData);
 		expect(console.error).toHaveBeenCalledWith('Failed to read cache:', failure);
 	});
+
+	it.each(['unreadable', 'invalid JSON'])(
+		'uses bundled data if cache is %s and APIs fail',
+		async (kind) => {
+			const t = setup();
+			if (kind === 'unreadable') t.cache.match.mockRejectedValue(new Error('cache.match failed'));
+			else t.cache.match.mockResolvedValue(new Response('{'));
+			t.fetch.mockResolvedValue(new Response(null, { status: 503 }));
+			await expect(t.run()).resolves.toEqual(vm);
+			expect(t.cache.put).not.toHaveBeenCalled();
+			expect(console.error).toHaveBeenCalledWith('Failed to read cache:', expect.any(Error));
+		}
+	);
 
 	it.each([false, true])(
 		'continues after a cache write error (waitUntil=%s)',
