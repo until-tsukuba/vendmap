@@ -17,7 +17,7 @@ const OVERPASS_ENDPOINTS = [
 	'https://overpass-api.de/api/interpreter',
 	'https://overpass.private.coffee/api/interpreter'
 ];
-const TIMEOUT_MS = 25_000;
+const TIMEOUT_MS = 45_000;
 
 // Overpass への問い合わせ回数を抑えるため取得結果を Cache API に保存する。
 // FRESH_MS を過ぎたら再取得を試み、失敗したときは STALE_S まで古い結果を使う
@@ -28,7 +28,7 @@ const STALE_S = 30 * 24 * 60 * 60;
 
 const PAGE_CACHE_CONTROL = 'max-age=43200, public, s-maxage=300, stale-while-revalidate=300';
 
-const query = `[out:json][timeout:25];
+const query = `[out:json][timeout:40];
 way(id:183555030);
 map_to_area-> .ulis;
 way(id:183555029);
