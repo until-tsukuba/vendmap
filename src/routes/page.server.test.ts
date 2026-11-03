@@ -116,7 +116,7 @@ describe('production vending-machine load', () => {
 		if (!(init?.body instanceof URLSearchParams)) throw new Error('Expected form data');
 		expect(init.body.get('data')).toContain('amenity=vending_machine');
 		expect(init.signal).toBeInstanceOf(AbortSignal);
-		expect(timeoutSpy).toHaveBeenCalledWith(25_000);
+		expect(timeoutSpy).toHaveBeenCalledWith(45_000);
 		expect(t.cache.put).toHaveBeenCalledTimes(1);
 		const [key, response] = t.cache.put.mock.calls[0];
 		expect(key).toBe(CACHE_KEY);
@@ -174,7 +174,7 @@ describe('production vending-machine load', () => {
 			expect.any(Error)
 		);
 		expect(console.error).toHaveBeenCalledWith(
-			expect.stringContaining('タイムアウト: 25秒'),
+			expect.stringContaining('タイムアウト: 45秒'),
 			expect.any(Error)
 		);
 		expect(t.cache.put).not.toHaveBeenCalled();
