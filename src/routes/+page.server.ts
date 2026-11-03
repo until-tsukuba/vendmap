@@ -1,4 +1,3 @@
-import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { payload, type OSMObject } from '$lib/overpass';
 import * as v from 'valibot';
@@ -185,7 +184,6 @@ export const load = (async ({ fetch, setHeaders, platform }): Promise<PointColle
 		return cached.data;
 	}
 
-	const failures: App.FetchFailure[] = [];
 	for (const url of OVERPASS_ENDPOINTS) {
 		try {
 			const data = makeGeoJSON(await fetchOverpass(fetch, url));
@@ -196,19 +194,17 @@ export const load = (async ({ fetch, setHeaders, platform }): Promise<PointColle
 			return data;
 		} catch (e) {
 			const reason = e instanceof OverpassFailure ? e.message : `予期しないエラー: ${String(e)}`;
-			failures.push({ source: new URL(url).host, reason });
 			console.error(`Overpass API request to ${url} failed: ${reason}`, e);
 		}
 	}
 
-	// すべてのエンドポイントで失敗した場合は古いキャッシュで表示を継続し、なければエラーにする
+	// すべてのエンドポイントで失敗した場合は、古いキャッシュ、なければ同梱の vm.json で表示を継続する。
+	// vm.json は scripts/update-vm.mjs (GitHub Actions) が定期的に更新する
+	setHeaders({ 'Cache-Control': 'public, max-age=300' });
 	if (cached) {
 		console.warn('Serving stale cache because all Overpass API requests failed');
-		setHeaders({ 'Cache-Control': 'public, max-age=300' });
 		return cached.data;
 	}
-	error(500, {
-		message: '自動販売機データの取得に失敗しました',
-		failures
-	});
+	console.warn('最新の自動販売機データの取得に失敗したため、参考データを表示します');
+	return vm as PointCollection;
 }) satisfies PageServerLoad;
