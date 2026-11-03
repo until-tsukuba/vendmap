@@ -1,0 +1,57 @@
+name: Update vending machine data
+
+on:
+  schedule:
+    - cron: '0 18 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+concurrency:
+  group: update-vm
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Fetch from Overpass API
+        run: node scripts/update-vm.mjs
+
+      - name: Format
+        run: pnpm exec prettier --write src/lib/assets/vm.json
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: chore/update-vm
+          delete-branch: true
+          commit-message: 'chore: update vending machine data'
+          title: 'chore: update vending machine data'
+          body: |
+            Overpass API から取得した最新の自動販売機データで `src/lib/assets/vm.json` を更新します。
+
+            マージ前に差分(件数の極端な増減がないか)を確認してください。
+
+            このPRは [update-vm workflow](${{ github.server_url }}/${{ github.repository }}/actions/workflows/update-vm.yml) が自動で作成しました。
+          labels: data
+
+      - name: Keep schedule enabled
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow enable update-vm.yml --repo "$GITHUB_REPOSITORY"
